@@ -1,9 +1,9 @@
 import { Link, useParams } from 'react-router';
 import { useLiveQuery } from 'dexie-react-hooks';
-import Screen from '../components/Screen.tsx';
+import Screen, { useGoBack } from '../components/Screen.tsx';
 import EmptyState from '../components/EmptyState.tsx';
 import { db } from '../db/db.ts';
-import { restoreBuiltIn, workoutsWithExercise } from '../db/exerciseRepo.ts';
+import { deleteExercise, isExerciseInUse, restoreBuiltIn, workoutsWithExercise } from '../db/exerciseRepo.ts';
 import { EQUIPMENT_LABELS, MUSCLE_LABELS } from '../db/types.ts';
 import { formatDate, formatSet } from '../lib/format.ts';
 
@@ -12,6 +12,8 @@ export default function ExerciseDetailScreen() {
   // null = loaded but missing; undefined = still loading.
   const exercise = useLiveQuery(async () => (await db.exercises.get(id)) ?? null, [id]);
   const history = useLiveQuery(() => workoutsWithExercise(id), [id]);
+  const inUse = useLiveQuery(() => isExerciseInUse(id), [id]);
+  const goBack = useGoBack('/library');
 
   if (exercise === undefined) return null;
 
@@ -21,6 +23,12 @@ export default function ExerciseDetailScreen() {
         <EmptyState title="This exercise doesn't exist" hint="It may have been removed. Go back to the library." />
       </Screen>
     );
+  }
+
+  async function onDelete() {
+    if (!exercise || !window.confirm(`Delete "${exercise.name}"? This can't be undone.`)) return;
+    if (await deleteExercise(id)) goBack();
+    else window.alert('This exercise is now in use, so it was not deleted.');
   }
 
   async function onRestore() {
@@ -119,6 +127,18 @@ export default function ExerciseDetailScreen() {
           <button type="button" className="btn btn-secondary" onClick={onRestore}>
             Restore original
           </button>
+        </div>
+      )}
+
+      {!exercise.builtIn && inUse !== undefined && (
+        <div className="section">
+          {inUse ? (
+            <p className="field-hint">This exercise is used in a routine or workout, so it can't be deleted.</p>
+          ) : (
+            <button type="button" className="btn btn-danger btn-block" onClick={onDelete}>
+              Delete exercise
+            </button>
+          )}
         </div>
       )}
     </Screen>

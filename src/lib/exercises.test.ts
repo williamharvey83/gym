@@ -47,11 +47,9 @@ describe('filterExercises', () => {
     ]);
   });
 
-  it('filters by muscle, matching primary or secondary', () => {
-    expect(filterExercises(LIST, { ...ALL, muscle: 'lats' }).map((e) => e.name)).toEqual([
-      'Lat Pulldown',
-      'One-Arm Dumbbell Row',
-    ]);
+  it('filters by primary muscle only', () => {
+    expect(filterExercises(LIST, { ...ALL, muscle: 'lats' }).map((e) => e.name)).toEqual(['Lat Pulldown']);
+    expect(filterExercises(LIST, { ...ALL, muscle: 'triceps' })).toHaveLength(0);
   });
 
   it('combines filters', () => {

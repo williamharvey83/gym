@@ -47,7 +47,7 @@ function termMatches(name: string, term: string): boolean {
 /**
  * Name search: every word typed must appear somewhere in the name, in any
  * order, so "db row" or "row dumb" both find "One-Arm Dumbbell Row".
- * Muscle filter matches primary or secondary muscles.
+ * Muscle filter matches the primary muscle only.
  */
 export function filterExercises<T extends Pick<Exercise, 'name' | 'primary' | 'secondary' | 'equipment'>>(
   list: readonly T[],
@@ -57,7 +57,7 @@ export function filterExercises<T extends Pick<Exercise, 'name' | 'primary' | 's
   return list
     .filter((e) => {
       if (equipment !== 'all' && e.equipment !== equipment) return false;
-      if (muscle !== 'all' && e.primary !== muscle && !e.secondary.includes(muscle)) return false;
+      if (muscle !== 'all' && e.primary !== muscle) return false;
       if (terms.length === 0) return true;
       const name = normalize(e.name);
       return terms.every((t) => termMatches(name, t));

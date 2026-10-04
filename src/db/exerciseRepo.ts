@@ -29,6 +29,28 @@ export async function restoreBuiltIn(id: string): Promise<void> {
   });
 }
 
+/** True if any routine, finished workout, or the in-progress workout uses this exercise. */
+export async function isExerciseInUse(id: string): Promise<boolean> {
+  if ((await db.workouts.where('exerciseIds').equals(id).count()) > 0) return true;
+  const active = await db.activeWorkout.get('current');
+  if (active?.exercises.some((e) => e.exerciseId === id)) return true;
+  const routines = await db.routines.toArray();
+  return routines.some((r) => r.exercises.some((e) => e.exerciseId === id));
+}
+
+/**
+ * Deletes a custom exercise that nothing uses. Returns false (and deletes
+ * nothing) for built-ins or exercises with logged data or routine slots.
+ */
+export async function deleteExercise(id: string): Promise<boolean> {
+  return db.transaction('rw', [db.exercises, db.workouts, db.routines, db.activeWorkout], async () => {
+    const ex = await db.exercises.get(id);
+    if (!ex || ex.builtIn || (await isExerciseInUse(id))) return false;
+    await db.exercises.delete(id);
+    return true;
+  });
+}
+
 /** Finished workouts that include this exercise, newest first. */
 export async function workoutsWithExercise(exerciseId: string): Promise<Workout[]> {
   const list = await db.workouts.where('exerciseIds').equals(exerciseId).toArray();
