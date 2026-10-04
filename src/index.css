@@ -1,0 +1,222 @@
+/*
+  Color system. Contrast on --bg (#F6F5F1):
+    Iron   #14181F  ~17:1  body text, structure, borders, nav
+    Flow   #004C99  ~7.9:1 primary actions, active states (safe for small text)
+    Tonal  #3D7BC4  ~4.0:1 large text, icons, chart series, fills only
+    Signal #E2581C  ~3.3:1 accent only: icons, fills behind Iron text
+  White text passes AA on Flow (~8.6:1). Use Iron, not white, on Signal fills.
+*/
+:root {
+  --bg: #f6f5f1;
+  --surface: #ffffff;
+  --iron: #14181f;
+  --flow: #004c99;
+  --tonal: #3d7bc4;
+  --signal: #e2581c;
+
+  --text: var(--iron);
+  --text-muted: #4a4f57; /* ~7.6:1 on --bg */
+  --border: rgba(20, 24, 31, 0.16);
+  --border-strong: var(--iron);
+  --flow-tint: #e3ecf6; /* active-state background, Flow text passes on it */
+
+  --radius: 12px;
+  --tap: 48px;
+  --gutter: 16px;
+  --tabbar-h: 64px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  color-scheme: light;
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  min-height: 100%;
+  overscroll-behavior-y: none;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.2;
+}
+
+a {
+  color: var(--flow);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--flow);
+  outline-offset: 2px;
+}
+
+/* ---------- App layout ---------- */
+
+.app {
+  min-height: 100dvh;
+  padding-bottom: calc(var(--tabbar-h) + var(--safe-bottom));
+}
+
+.screen {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: calc(var(--safe-top) + 12px) var(--gutter) 24px;
+}
+
+.screen-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--tap);
+  margin-bottom: 12px;
+}
+
+.screen-title {
+  font-size: 1.75rem;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--tap);
+  min-width: var(--tap);
+  padding: 0 20px;
+  border-radius: var(--radius);
+  border: 1.5px solid transparent;
+  font-weight: 650;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--flow);
+  color: #fff;
+}
+
+.btn-primary:active {
+  background: #003b77;
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--iron);
+  border-color: var(--border-strong);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+/* ---------- Empty state ---------- */
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 48px 16px;
+}
+
+.empty-icon {
+  color: var(--tonal);
+}
+
+.empty-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.empty-hint {
+  margin: 0;
+  color: var(--text-muted);
+  max-width: 30ch;
+}
+
+/* ---------- Bottom tab bar ---------- */
+
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding-bottom: var(--safe-bottom);
+}
+
+.tabbar-list {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: var(--tabbar-h);
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tab-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 30px;
+  border-radius: 999px;
+}
+
+.tab.active {
+  color: var(--flow);
+}
+
+.tab.active .tab-icon {
+  background: var(--flow-tint);
+}
