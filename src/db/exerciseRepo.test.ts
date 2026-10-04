@@ -46,7 +46,7 @@ describe('deleteExercise', () => {
 
   it('refuses an exercise in the in-progress workout', async () => {
     const id = await createExercise({ ...DRAFT, secondary: [], cues: [] });
-    await db.activeWorkout.put({ key: 'current', name: 'Legs', routineId: null, startedAt: 1, exercises: [{ exerciseId: id, sets: [] }] });
+    await db.activeWorkout.put({ key: 'current', name: 'Legs', routineId: null, startedAt: 1, exercises: [{ key: 'k', exerciseId: id, sets: [] }] });
     expect(await deleteExercise(id)).toBe(false);
   });
 });

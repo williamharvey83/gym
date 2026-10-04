@@ -46,6 +46,56 @@ export function PlusIcon(props: IconProps) {
   );
 }
 
+export function CheckIcon(props: IconProps) {
+  return (
+    <Icon strokeWidth={3} {...props}>
+      <path d="M5 12.5l4.5 4.5L19 7.5" />
+    </Icon>
+  );
+}
+
+export function MoreIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="5" cy="12" r="1.2" fill="currentColor" />
+      <circle cx="12" cy="12" r="1.2" fill="currentColor" />
+      <circle cx="19" cy="12" r="1.2" fill="currentColor" />
+    </Icon>
+  );
+}
+
+export function UpIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M6 15l6-6 6 6" />
+    </Icon>
+  );
+}
+
+export function DownIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M6 9l6 6 6-6" />
+    </Icon>
+  );
+}
+
+export function CloseIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M6 6l12 12M18 6L6 18" />
+    </Icon>
+  );
+}
+
+export function MinusIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M5 12h14" />
+    </Icon>
+  );
+}
+
 export function SearchIcon(props: IconProps) {
   return (
     <Icon {...props}>

@@ -112,13 +112,28 @@ export type Workout = {
   exerciseIds: string[];
 };
 
+/** A set being edited. Weight and reps stay null until entered. */
+export type DraftSet = {
+  /** Stable React key; not saved with finished workouts. */
+  key: string;
+  weight: number | null;
+  reps: number | null;
+  done: boolean;
+};
+
+export type DraftExercise = {
+  key: string;
+  exerciseId: string;
+  sets: DraftSet[];
+};
+
 /** The workout being logged right now. Stored on every change for crash recovery. */
 export type ActiveWorkout = {
   key: 'current';
   name: string;
   routineId: string | null;
   startedAt: number;
-  exercises: WorkoutExercise[];
+  exercises: DraftExercise[];
 };
 
 export type MetaRow = { key: string; value: unknown };

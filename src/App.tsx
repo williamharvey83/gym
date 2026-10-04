@@ -1,7 +1,10 @@
 import { Navigate, Route, Routes } from 'react-router';
 import TabBar from './components/TabBar.tsx';
 import WorkoutScreen from './screens/WorkoutScreen.tsx';
+import WorkoutDetailScreen from './screens/WorkoutDetailScreen.tsx';
+import WorkoutEditScreen from './screens/WorkoutEditScreen.tsx';
 import RoutinesScreen from './screens/RoutinesScreen.tsx';
+import RoutineEditScreen from './screens/RoutineEditScreen.tsx';
 import LibraryScreen from './screens/LibraryScreen.tsx';
 import ExerciseDetailScreen from './screens/ExerciseDetailScreen.tsx';
 import ExerciseEditScreen from './screens/ExerciseEditScreen.tsx';
@@ -14,7 +17,11 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/workout" replace />} />
         <Route path="/workout" element={<WorkoutScreen />} />
+        <Route path="/history/:id" element={<WorkoutDetailScreen />} />
+        <Route path="/history/:id/edit" element={<WorkoutEditScreen />} />
         <Route path="/routines" element={<RoutinesScreen />} />
+        <Route path="/routines/new" element={<RoutineEditScreen />} />
+        <Route path="/routines/:id/edit" element={<RoutineEditScreen />} />
         <Route path="/library" element={<LibraryScreen />} />
         <Route path="/library/new" element={<ExerciseEditScreen />} />
         <Route path="/library/:id" element={<ExerciseDetailScreen />} />
