@@ -17,6 +17,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
+      // The glob below already precaches the icons.
+      includeManifestIcons: false,
       manifest: {
         name: 'Gym Tracker',
         short_name: 'Gym',

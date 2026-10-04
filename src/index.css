@@ -763,17 +763,11 @@ html:has(dialog[open]) {
 }
 
 .live-name {
-  min-height: 28px;
-  padding: 0;
-  border: 0;
-  background: none;
-  text-align: left;
   font-size: 1.25rem;
   font-weight: 750;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  cursor: pointer;
 }
 
 .elapsed {
@@ -1317,10 +1311,36 @@ html:has(dialog[open]) {
   gap: 14px 10px;
 }
 
+.cal-month {
+  display: block;
+  margin: -4px;
+  padding: 4px;
+  width: calc(100% + 8px);
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cal-month:active,
+.cal-month.sel {
+  background: var(--flow-tint);
+}
+
+.cal-month.sel {
+  box-shadow: inset 0 0 0 2px var(--flow);
+}
+
 .cal-month-name {
+  display: block;
   font-size: 0.8125rem;
   font-weight: 700;
   margin-bottom: 4px;
+}
+
+.cal-list {
+  margin-top: 8px;
 }
 
 .cal-days {
@@ -1367,16 +1387,6 @@ html:has(dialog[open]) {
   background: var(--flow);
 }
 
-button.cal-day {
-  cursor: pointer;
-}
-
-.cal-day.sel {
-  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--iron);
-  position: relative;
-  z-index: 1;
-}
-
 .cal-day.future {
   visibility: hidden;
 }
@@ -1402,10 +1412,6 @@ button.cal-day {
   font-size: 0.9375rem;
 }
 
-.cal-readout ul {
-  margin: 4px 0 0;
-  padding-left: 18px;
-}
 
 .history-count {
   font-weight: 600;
@@ -1605,10 +1611,13 @@ button.cal-day {
 
 .detail-ex-title {
   font-size: 1.0625rem;
-  margin-bottom: 8px;
+  margin: -8px 0 0;
 }
 
 .detail-ex-title a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
   color: var(--iron);
   text-decoration-color: rgba(20, 24, 31, 0.3);
   text-underline-offset: 3px;

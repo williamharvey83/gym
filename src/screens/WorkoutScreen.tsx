@@ -195,9 +195,8 @@ function LiveWorkout({ active, onFinished }: { active: ActiveWorkout; onFinished
     <main className="screen live">
       <div className="live-bar">
         <div className="live-bar-main">
-          <button type="button" className="live-name" onClick={rename} aria-label={`Workout name: ${active.name}. Tap to rename`}>
-            {active.name}
-          </button>
+          {/* Rename lives in the ⋯ menu, which keeps this a calm heading instead of a small tap target. */}
+          <h1 className="live-name">{active.name}</h1>
           <Elapsed since={active.startedAt} />
         </div>
         <button type="button" className="icon-btn" aria-label="Workout options" onClick={() => setMenuOpen(true)}>

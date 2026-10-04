@@ -21,7 +21,7 @@ const NumberField = forwardRef<HTMLInputElement, Props>(function NumberField({ k
   // Follow outside changes (prefill, undo) unless the text already means that value.
   useEffect(() => {
     setText((t) => (parse(t) === value || (t === '' && value === null) ? t : format(value)));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Only `value` matters here; parse/format are fixed for a given `kind`.
   }, [value]);
 
   return (

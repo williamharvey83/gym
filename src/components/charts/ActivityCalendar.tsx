@@ -1,15 +1,16 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import type { Workout } from '../../db/types.ts';
-import { formatDate } from '../../lib/format.ts';
+import { formatDate, plural } from '../../lib/format.ts';
 import { addMonths, dayKey, heatLevel, startOfDay, startOfMonth, workoutSetCount } from '../../lib/stats.ts';
 
 const DOW = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 type Day = { key: string; ms: number; sets: number; future: boolean };
+type Month = { start: number; lead: number; days: Day[]; workouts: Workout[] };
 
-function monthDays(monthStart: number, today: number, setsByDay: Map<string, number>): { lead: number; days: Day[] } {
-  const first = new Date(monthStart);
+function buildMonth(start: number, today: number, setsByDay: Map<string, number>, workouts: Workout[]): Month {
+  const first = new Date(start);
   const lead = (first.getDay() + 6) % 7; // blank cells before the 1st (weeks start Monday)
   const days: Day[] = [];
   for (let d = new Date(first); d.getMonth() === first.getMonth(); d.setDate(d.getDate() + 1)) {
@@ -17,36 +18,35 @@ function monthDays(monthStart: number, today: number, setsByDay: Map<string, num
     const key = dayKey(ms);
     days.push({ key, ms, sets: setsByDay.get(key) ?? 0, future: ms > today });
   }
-  return { lead, days };
+  const end = addMonths(start, 1);
+  return { start, lead, days, workouts: workouts.filter((w) => w.startedAt >= start && w.startedAt < end) };
 }
 
-/** 12 small month grids, shaded by completed sets per day. Tap a day for details. */
+/**
+ * 12 small month grids, shaded by completed sets per day. Each month is one
+ * large tap target (day squares are too small to tap reliably); tapping it
+ * lists that month's workouts below.
+ */
 export default function ActivityCalendar({ workouts, now }: { workouts: Workout[]; now: number }) {
-  const [selected, setSelected] = useState<string | null>(null);
   const today = startOfDay(now);
+  const [selected, setSelected] = useState<number | null>(null);
 
-  const byDay = useMemo(() => {
-    const m = new Map<string, Workout[]>();
+  const setsByDay = useMemo(() => {
+    const m = new Map<string, number>();
     for (const w of workouts) {
       const k = dayKey(w.startedAt);
-      m.set(k, [...(m.get(k) ?? []), w]);
+      m.set(k, (m.get(k) ?? 0) + workoutSetCount(w));
     }
     return m;
   }, [workouts]);
 
-  const setsByDay = useMemo(() => {
-    const m = new Map<string, number>();
-    for (const [k, ws] of byDay) m.set(k, ws.reduce((n, w) => n + workoutSetCount(w), 0));
-    return m;
-  }, [byDay]);
-
   const months = useMemo(() => {
     const last = startOfMonth(now);
-    return Array.from({ length: 12 }, (_, i) => addMonths(last, i - 11));
-  }, [now]);
+    return Array.from({ length: 12 }, (_, i) => buildMonth(addMonths(last, i - 11), today, setsByDay, workouts));
+  }, [now, today, setsByDay, workouts]);
 
-  const daysTrained = months.reduce((n, m) => n + monthDays(m, today, setsByDay).days.filter((d) => d.sets > 0).length, 0);
-  const sel = selected ? byDay.get(selected) : undefined;
+  const daysTrained = months.reduce((n, m) => n + m.days.filter((d) => d.sets > 0).length, 0);
+  const sel = months.find((m) => m.start === selected);
 
   return (
     <div>
@@ -56,39 +56,35 @@ export default function ActivityCalendar({ workouts, now }: { workouts: Workout[
 
       <div className="cal-grid">
         {months.map((m) => {
-          const { lead, days } = monthDays(m, today, setsByDay);
-          const name = new Date(m).toLocaleDateString('en-US', { month: 'short' });
+          const long = new Date(m.start).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+          const trained = m.days.filter((d) => d.sets > 0).length;
           return (
-            <div key={m} className="cal-month">
-              <div className="cal-month-name">{name}</div>
-              <div className="cal-days" role="group" aria-label={new Date(m).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}>
+            <button
+              key={m.start}
+              type="button"
+              className={selected === m.start ? 'cal-month sel' : 'cal-month'}
+              aria-pressed={selected === m.start}
+              aria-label={`${long}: ${plural(m.workouts.length, 'workout')} on ${plural(trained, 'day')}`}
+              onClick={() => setSelected(selected === m.start ? null : m.start)}
+            >
+              <span className="cal-month-name">{new Date(m.start).toLocaleDateString('en-US', { month: 'short' })}</span>
+              <span className="cal-days" aria-hidden="true">
                 {DOW.map((d, i) => (
-                  <span key={`h${i}`} className="cal-dow" aria-hidden="true">
+                  <span key={`h${i}`} className="cal-dow">
                     {d}
                   </span>
                 ))}
-                {Array.from({ length: lead }, (_, i) => (
+                {Array.from({ length: m.lead }, (_, i) => (
                   <span key={`b${i}`} />
                 ))}
-                {days.map((d) => {
-                  const level = heatLevel(d.sets);
-                  const label = `${formatDate(d.ms)}: ${d.sets === 0 ? 'no workout' : `${d.sets} sets`}`;
-                  if (d.future) return <span key={d.key} className="cal-day future" aria-hidden="true" />;
-                  return d.sets > 0 ? (
-                    <button
-                      key={d.key}
-                      type="button"
-                      className={`cal-day l${level}${selected === d.key ? ' sel' : ''}`}
-                      aria-label={label}
-                      aria-pressed={selected === d.key}
-                      onClick={() => setSelected(selected === d.key ? null : d.key)}
-                    />
-                  ) : (
-                    <span key={d.key} className={`cal-day l0${d.ms === today ? ' today' : ''}`} title={label} />
-                  );
-                })}
-              </div>
-            </div>
+                {m.days.map((d) => (
+                  <span
+                    key={d.key}
+                    className={`cal-day l${heatLevel(d.sets)}${d.ms === today ? ' today' : ''}${d.future ? ' future' : ''}`}
+                  />
+                ))}
+              </span>
+            </button>
           );
         })}
       </div>
@@ -103,19 +99,33 @@ export default function ActivityCalendar({ workouts, now }: { workouts: Workout[
       </div>
 
       <div className="cal-readout" aria-live="polite">
-        {sel && selected ? (
+        {sel ? (
           <>
-            <strong>{formatDate(sel[0]!.startedAt)}</strong>
-            <ul>
-              {sel.map((w) => (
-                <li key={w.id}>
-                  <Link to={`/history/${w.id}`}>{w.name}</Link> · {workoutSetCount(w)} sets
-                </li>
-              ))}
-            </ul>
+            <strong>
+              {new Date(sel.start).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })} ·{' '}
+              {plural(sel.workouts.length, 'workout')}
+            </strong>
+            {sel.workouts.length > 0 ? (
+              <ul className="list cal-list">
+                {[...sel.workouts].reverse().map((w) => (
+                  <li key={w.id}>
+                    <Link to={`/history/${w.id}`} className="row">
+                      <span className="row-main">
+                        <span className="row-title">{w.name}</span>
+                        <span className="row-sub">
+                          {formatDate(w.startedAt)} · {plural(workoutSetCount(w), 'set')}
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="muted">No workouts this month.</p>
+            )}
           </>
         ) : (
-          <span className="muted">Tap a shaded day to see that workout.</span>
+          <span className="muted">Tap a month to list its workouts.</span>
         )}
       </div>
     </div>
