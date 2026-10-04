@@ -36,7 +36,7 @@ export default function WorkoutEditScreen() {
 
   if (missing) {
     return (
-      <Screen title="Not found" backTo="/workout">
+      <Screen title="Not found" backTo="/history">
         <p className="muted">This workout doesn't exist.</p>
       </Screen>
     );

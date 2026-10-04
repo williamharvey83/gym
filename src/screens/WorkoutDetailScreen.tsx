@@ -8,7 +8,7 @@ import { formatDate, formatDuration, formatSet, formatTime } from '../lib/format
 
 export default function WorkoutDetailScreen() {
   const { id = '' } = useParams();
-  const goBack = useGoBack('/workout');
+  const goBack = useGoBack('/history');
   const workout = useLiveQuery(async () => (await db.workouts.get(id)) ?? null, [id]);
   const names = useLiveQuery(async () => {
     if (!workout) return new Map<string, string>();
@@ -19,7 +19,7 @@ export default function WorkoutDetailScreen() {
   if (workout === undefined) return null;
   if (workout === null) {
     return (
-      <Screen title="Not found" backTo="/workout">
+      <Screen title="Not found" backTo="/history">
         <EmptyState title="This workout doesn't exist" hint="It may have been deleted." />
       </Screen>
     );
@@ -37,7 +37,7 @@ export default function WorkoutDetailScreen() {
   return (
     <Screen
       title={workout.name}
-      backTo="/workout"
+      backTo="/history"
       actions={
         <Link to={`/history/${id}/edit`} className="btn btn-secondary">
           Edit

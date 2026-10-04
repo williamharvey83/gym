@@ -9,6 +9,16 @@ export function formatSet(weight: number, reps: number): string {
   return `${formatWeight(weight)} × ${reps}`;
 }
 
+/** Whole pounds with separators: "12,340 lb". */
+export function formatVolume(lb: number): string {
+  return `${Math.round(lb).toLocaleString('en-US')} lb`;
+}
+
+/** Short pounds for chart labels: "940 lb", "12.3k lb", "1.2M lb". */
+export function formatCompactLb(lb: number): string {
+  return `${Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Math.round(lb))} lb`;
+}
+
 /** "6:42 PM" */
 export function formatTime(ms: number): string {
   return new Date(ms).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatClock, formatDuration, formatSet, formatWeight } from './format.ts';
+import { formatClock, formatCompactLb, formatDuration, formatSet, formatVolume, formatWeight } from './format.ts';
 
 describe('formatWeight', () => {
   it('always shows lb', () => {
@@ -11,6 +11,14 @@ describe('formatWeight', () => {
 
   it('formats a set', () => {
     expect(formatSet(135, 8)).toBe('135 lb × 8');
+  });
+});
+
+describe('volume formatting', () => {
+  it('shows lb with separators or compact units', () => {
+    expect(formatVolume(12340.4)).toBe('12,340 lb');
+    expect(formatCompactLb(940)).toBe('940 lb');
+    expect(formatCompactLb(12345)).toBe('12.3K lb');
   });
 });
 

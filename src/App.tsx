@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import TabBar from './components/TabBar.tsx';
 import WorkoutScreen from './screens/WorkoutScreen.tsx';
@@ -8,8 +9,12 @@ import RoutineEditScreen from './screens/RoutineEditScreen.tsx';
 import LibraryScreen from './screens/LibraryScreen.tsx';
 import ExerciseDetailScreen from './screens/ExerciseDetailScreen.tsx';
 import ExerciseEditScreen from './screens/ExerciseEditScreen.tsx';
-import ProgressScreen from './screens/ProgressScreen.tsx';
+import HistoryScreen from './screens/HistoryScreen.tsx';
 import SettingsScreen from './screens/SettingsScreen.tsx';
+
+// Charts are the heaviest code in the app; load them only when Progress opens.
+// The service worker still precaches this chunk, so it works offline.
+const ProgressScreen = lazy(() => import('./screens/ProgressScreen.tsx'));
 
 export default function App() {
   return (
@@ -17,6 +22,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/workout" replace />} />
         <Route path="/workout" element={<WorkoutScreen />} />
+        <Route path="/history" element={<HistoryScreen />} />
         <Route path="/history/:id" element={<WorkoutDetailScreen />} />
         <Route path="/history/:id/edit" element={<WorkoutEditScreen />} />
         <Route path="/routines" element={<RoutinesScreen />} />
@@ -26,7 +32,14 @@ export default function App() {
         <Route path="/library/new" element={<ExerciseEditScreen />} />
         <Route path="/library/:id" element={<ExerciseDetailScreen />} />
         <Route path="/library/:id/edit" element={<ExerciseEditScreen />} />
-        <Route path="/progress" element={<ProgressScreen />} />
+        <Route
+          path="/progress"
+          element={
+            <Suspense fallback={null}>
+              <ProgressScreen />
+            </Suspense>
+          }
+        />
         <Route path="/settings" element={<SettingsScreen />} />
         <Route path="*" element={<Navigate to="/workout" replace />} />
       </Routes>
