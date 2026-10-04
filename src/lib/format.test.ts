@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatClock, formatCompactLb, formatDuration, formatSet, formatVolume, formatWeight } from './format.ts';
+import { formatClock, formatCompactLb, formatDuration, formatSet, formatVolume, formatWeight, plural } from './format.ts';
 
 describe('formatWeight', () => {
   it('always shows lb', () => {
@@ -11,6 +11,15 @@ describe('formatWeight', () => {
 
   it('formats a set', () => {
     expect(formatSet(135, 8)).toBe('135 lb × 8');
+  });
+});
+
+describe('plural', () => {
+  it('picks the right word form', () => {
+    expect(plural(1, 'routine')).toBe('1 routine');
+    expect(plural(0, 'routine')).toBe('0 routines');
+    expect(plural(1204, 'set')).toBe('1,204 sets');
+    expect(plural(2, 'exercise')).toBe('2 exercises');
   });
 });
 

@@ -9,6 +9,11 @@ export function formatSet(weight: number, reps: number): string {
   return `${formatWeight(weight)} × ${reps}`;
 }
 
+/** "1 routine", "3 routines", "1,204 sets" */
+export function plural(n: number, word: string, many = `${word}s`): string {
+  return `${n.toLocaleString('en-US')} ${n === 1 ? word : many}`;
+}
+
 /** Whole pounds with separators: "12,340 lb". */
 export function formatVolume(lb: number): string {
   return `${Math.round(lb).toLocaleString('en-US')} lb`;

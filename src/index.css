@@ -1436,6 +1436,90 @@ button.cal-day {
   font-weight: 750;
 }
 
+/* ---------- Settings ---------- */
+
+.settings-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+
+.settings-card > p {
+  margin: 0;
+}
+
+.settings-tip {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--flow-tint);
+  font-size: 0.9375rem;
+}
+
+.status-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.status-row p {
+  margin: 0;
+}
+
+.status-title {
+  font-weight: 700;
+}
+
+.status-dot {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  border-radius: 50%;
+  color: #fff;
+}
+
+.status-dot.ok {
+  background: var(--flow);
+}
+
+.status-dot.warn {
+  border: 3px solid var(--signal);
+}
+
+.notice {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.notice-ok {
+  background: var(--flow-tint);
+  color: var(--flow);
+}
+
+.notice-error {
+  background: #fbe9e4; /* deep red text on this tint: ~6.1:1 */
+  color: #a3260f;
+}
+
+.btn-danger-solid {
+  background: #a3260f;
+  color: #fff;
+}
+
+.summary-list {
+  margin: 0 0 14px;
+  padding-left: 20px;
+}
+
+.summary-list li + li {
+  margin-top: 4px;
+}
+
 /* ---------- Routines ---------- */
 
 .routine-list {

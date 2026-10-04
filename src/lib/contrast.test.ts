@@ -33,6 +33,10 @@ describe('palette pairs used for small text pass AA (4.5:1)', () => {
     ['Flow on active tint', FLOW, FLOW_TINT],
     ['White on Flow', '#FFFFFF', FLOW],
     ['Iron on Signal fill', IRON, SIGNAL],
+    ['Error red on surface', '#A3260F', SURFACE],
+    ['Error red on background', '#A3260F', BG],
+    ['Error red on error tint', '#A3260F', '#FBE9E4'],
+    ['White on danger button', '#FFFFFF', '#A3260F'],
   ])('%s', (_name, fg, bg) => {
     expect(contrastRatio(fg, bg)).toBeGreaterThanOrEqual(AA_TEXT);
   });
