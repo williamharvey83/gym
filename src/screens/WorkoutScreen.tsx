@@ -6,7 +6,9 @@ import EmptyState from '../components/EmptyState.tsx';
 import WorkoutEditor from '../components/WorkoutEditor.tsx';
 import Sheet, { ActionSheet } from '../components/Sheet.tsx';
 import { ChevronIcon, DumbbellIcon, MoreIcon } from '../components/icons.tsx';
+import RestTimerBar from '../components/RestTimerBar.tsx';
 import { updateActiveWorkout, useActiveWorkout } from '../db/activeWorkoutStore.ts';
+import { stopRestTimer } from '../db/restTimerStore.ts';
 import { listRoutines, updateRoutine } from '../db/routineRepo.ts';
 import {
   discardActiveWorkout,
@@ -181,6 +183,7 @@ function LiveWorkout({ active, onFinished }: { active: ActiveWorkout; onFinished
     setFinishing(true);
     try {
       const result = await finishActiveWorkout();
+      stopRestTimer();
       setFinishOpen(false);
       if (result) onFinished(result);
     } finally {
@@ -212,6 +215,10 @@ function LiveWorkout({ active, onFinished }: { active: ActiveWorkout; onFinished
         onChange={(exercises) => updateActiveWorkout((w) => ({ ...w, exercises }))}
       />
 
+      {/* Room so the pinned rest timer never covers the last exercise. */}
+      <div className="rest-spacer" aria-hidden="true" />
+      <RestTimerBar />
+
       <ActionSheet
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
@@ -224,6 +231,7 @@ function LiveWorkout({ active, onFinished }: { active: ActiveWorkout; onFinished
             onSelect: () => {
               if (window.confirm("Discard this workout? Nothing from it will be saved, and this can't be undone.")) {
                 discardActiveWorkout();
+                stopRestTimer();
               }
             },
           },

@@ -944,6 +944,142 @@ html:has(dialog[open]) {
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- Rest timer ---------- */
+
+.rest-spacer {
+  height: 84px;
+}
+
+.rest {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--tabbar-h) + var(--safe-bottom));
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 480px;
+  min-height: 68px;
+  margin: 0 auto;
+  padding: 10px 12px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 16px rgba(20, 24, 31, 0.06);
+}
+
+@media (min-width: 481px) {
+  .rest {
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    border-radius: 14px 14px 0 0;
+  }
+}
+
+.rest-idle-label {
+  font-weight: 700;
+  padding: 0 4px;
+}
+
+.rest-presets {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.rest-preset {
+  min-width: 0;
+  padding: 0 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.rest-running {
+  padding-top: 14px;
+}
+
+.rest-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 4px;
+  background: rgba(61, 123, 196, 0.18);
+  overflow: hidden;
+}
+
+.rest-progress-fill {
+  height: 100%;
+  background: var(--tonal);
+  transform-origin: left;
+  transition: transform 0.25s linear;
+}
+
+.rest-step {
+  min-width: 64px;
+  padding: 0 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.rest-clock {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+}
+
+.rest-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.rest-time {
+  font-size: 2rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  color: var(--flow);
+}
+
+/* Signal fill with Iron text: ~5.3:1. */
+.rest-done {
+  justify-content: space-between;
+  background: var(--signal);
+  color: var(--iron);
+  border-top-color: var(--signal);
+  animation: rest-pulse 1s ease-in-out 3;
+}
+
+.rest-done-text {
+  margin: 0 0 0 6px;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.rest-dismiss {
+  background: transparent;
+  color: var(--iron);
+  border-color: var(--iron);
+}
+
+@keyframes rest-pulse {
+  50% {
+    filter: brightness(1.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rest-done {
+    animation: none;
+  }
+  .rest-progress-fill {
+    transition: none;
+  }
+}
+
 /* ---------- Routines ---------- */
 
 .routine-list {
