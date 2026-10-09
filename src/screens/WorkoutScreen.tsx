@@ -7,6 +7,7 @@ import WorkoutEditor from '../components/WorkoutEditor.tsx';
 import Sheet, { ActionSheet } from '../components/Sheet.tsx';
 import { ChevronIcon, DumbbellIcon, MoreIcon } from '../components/icons.tsx';
 import RestTimerBar from '../components/RestTimerBar.tsx';
+import WeeklySetsCard from '../components/WeeklySetsCard.tsx';
 import { updateActiveWorkout, useActiveWorkout } from '../db/activeWorkoutStore.ts';
 import { stopRestTimer } from '../db/restTimerStore.ts';
 import { listRoutines, updateRoutine } from '../db/routineRepo.ts';
@@ -81,6 +82,13 @@ function StartView() {
       <button type="button" className="btn btn-primary btn-block btn-lg" onClick={startEmptyWorkout}>
         Start empty workout
       </button>
+
+      <section className="card chart-card" aria-labelledby="start-sets">
+        <h2 id="start-sets" className="chart-title">
+          Weekly sets by muscle
+        </h2>
+        <WeeklySetsCard />
+      </section>
 
       <section className="section" aria-labelledby="start-routines">
         <h2 id="start-routines" className="section-title">
@@ -169,6 +177,7 @@ function LiveWorkout({ active, onFinished }: { active: ActiveWorkout; onFinished
   const [menuOpen, setMenuOpen] = useState(false);
   const [finishOpen, setFinishOpen] = useState(false);
   const [finishing, setFinishing] = useState(false);
+  const [setsOpen, setSetsOpen] = useState(false);
 
   const allSets = active.exercises.flatMap((e) => e.sets);
   const done = allSets.filter((s) => s.done).length;
@@ -223,6 +232,7 @@ function LiveWorkout({ active, onFinished }: { active: ActiveWorkout; onFinished
         onClose={() => setMenuOpen(false)}
         title="Workout"
         actions={[
+          { label: 'Weekly sets by muscle', onSelect: () => setSetsOpen(true) },
           { label: 'Rename workout', onSelect: rename },
           {
             label: 'Discard workout',
@@ -236,6 +246,10 @@ function LiveWorkout({ active, onFinished }: { active: ActiveWorkout; onFinished
           },
         ]}
       />
+
+      <Sheet open={setsOpen} onClose={() => setSetsOpen(false)} title="Weekly sets by muscle" tall>
+        <WeeklySetsCard />
+      </Sheet>
 
       <Sheet
         open={finishOpen}

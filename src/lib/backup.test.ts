@@ -133,6 +133,24 @@ describe('validateBackup: rejects', () => {
   });
 });
 
+describe('validateBackup: settings', () => {
+  it('keeps weekly set goals when present', () => {
+    const f = { ...good(), settings: { muscleGoals: { chest: 16, back: 14 } } };
+    const r = validateBackup(text(f), SCHEMA);
+    expect(r.ok && r.file.settings?.muscleGoals).toMatchObject({ chest: 16, back: 14, traps: 6 });
+  });
+
+  it('accepts older backups with no settings at all', () => {
+    const r = validateBackup(text(good()), SCHEMA);
+    expect(r.ok && r.file.settings).toBeUndefined();
+  });
+
+  it('rejects an invalid goal instead of silently changing it', () => {
+    expect(errorOf({ ...good(), settings: { muscleGoals: { chest: 0 } } })).toMatch(/settings\.muscleGoals\.chest must be between/);
+    expect(errorOf({ ...good(), settings: 'x' })).toMatch(/settings must be an object/);
+  });
+});
+
 describe('backup helpers', () => {
   it('names the file by local date', () => {
     expect(backupFileName(new Date(2026, 9, 4, 23, 59).getTime())).toBe('gym-backup-2026-10-04.json');

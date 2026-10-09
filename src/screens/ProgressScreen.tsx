@@ -8,6 +8,7 @@ import { ChartIcon } from '../components/icons.tsx';
 import ExerciseProgressChart from '../components/charts/ExerciseProgressChart.tsx';
 import WeeklyVolumeChart from '../components/charts/WeeklyVolumeChart.tsx';
 import ActivityCalendar from '../components/charts/ActivityCalendar.tsx';
+import WeeklySetsCard from '../components/WeeklySetsCard.tsx';
 import { db } from '../db/db.ts';
 import type { Exercise } from '../db/types.ts';
 import { exerciseSeries, exercisesByRecency, weekStreaks, workoutCounts } from '../lib/stats.ts';
@@ -87,6 +88,13 @@ export default function ProgressScreen() {
         />
         <Stat value={weeks(streaks.longest)} label="Longest streak" />
       </div>
+
+      <section className="card chart-card" aria-labelledby="pg-sets">
+        <h2 id="pg-sets" className="chart-title">
+          Weekly sets by muscle
+        </h2>
+        <WeeklySetsCard navigable earliest={starts[0]} />
+      </section>
 
       <section className="card chart-card" aria-labelledby="pg-ex">
         <h2 id="pg-ex" className="chart-title">

@@ -10,6 +10,7 @@ A personal resistance-training tracker that runs as an installable web app (PWA)
 - **Routines** — create, edit, reorder, duplicate, and delete templates like Push / Pull / Legs.
 - **Live workout logger** — start from a routine or empty. Add, remove, and reorder exercises and sets. Each exercise shows what you did last time and prefills new sets so you can confirm with one tap. Every keystroke is saved, so a closed or crashed app comes back exactly where you left it.
 - **Rest timer** — manual start with 1:00 / 1:30 / 2:00 / 3:00 presets and ±15 s. Timestamp-based, so it stays accurate when the phone locks. Tone and vibration (where supported) at the end.
+- **Weekly sets by muscle** — a front and back body map colored by this week's checked sets per muscle group: gray (`#D5D9DE`) with no sets, amber (`#E3A72F`) in progress, deep blue (`#0B57A4`) when the goal is met. A list underneath shows each group as "8 / 12 sets" with a progress ring and a check mark, so it never depends on color alone. Counts use each exercise's primary muscle; lats, upper back, and lower back count together as **Back**. Default goals: Chest and Back 12 sets, everything else 6, editable in Settings. Weeks reset Monday at 12:00 AM, and checked sets in a workout still in progress count right away. Shown on the Workout tab, at the top of Progress (with arrows for past weeks), and in the live workout's ⋯ menu.
 - **Progress** — top set and estimated 1RM (Epley) per exercise, weekly volume by primary muscle, a 12-month calendar, week streaks, summary counts, and a full history you can edit.
 - **Backup** — export everything to one JSON file and restore it later.
 
@@ -96,9 +97,12 @@ Notes:
   "schemaVersion": 1,
   "exportedAt": "2026-10-04T18:00:00.000Z",
   "seedVersion": 1,
-  "data": { "exercises": [], "routines": [], "workouts": [] }
+  "data": { "exercises": [], "routines": [], "workouts": [] },
+  "settings": { "muscleGoals": { "chest": 12, "back": 12, "traps": 6 } }
 }
 ```
+
+`settings` is optional. Backups made before weekly set goals existed import fine and leave the phone's current goals unchanged.
 
 ## Known limits
 

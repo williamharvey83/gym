@@ -1,6 +1,9 @@
-import { useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
+import { useLocation } from 'react-router';
 import { useLiveQuery } from 'dexie-react-hooks';
 import Screen from '../components/Screen.tsx';
+import GoalsEditor from '../components/GoalsEditor.tsx';
+import { useGoals } from '../db/weeklySets.ts';
 import Sheet from '../components/Sheet.tsx';
 import { CheckIcon } from '../components/icons.tsx';
 import { db, SCHEMA_VERSION } from '../db/db.ts';
@@ -33,8 +36,9 @@ function makeFile(backup: BackupFile, now: number): File {
 }
 
 export default function SettingsScreen() {
-  const persist = useLiveQuery(async () => (await db.meta.get(META_PERSIST))?.value as PersistStatus | undefined, []);
-  const lastExport = useLiveQuery(async () => (await db.meta.get(META_LAST_EXPORT))?.value as number | undefined, []);
+  // null = nothing saved yet; undefined = still loading.
+  const persist = useLiveQuery(async () => ((await db.meta.get(META_PERSIST))?.value as PersistStatus | undefined) ?? null, []);
+  const lastExport = useLiveQuery(async () => ((await db.meta.get(META_LAST_EXPORT))?.value as number | undefined) ?? null, []);
   const counts = useLiveQuery(
     async () => ({
       workouts: await db.workouts.count(),
@@ -45,6 +49,19 @@ export default function SettingsScreen() {
   );
   const usage = useLiveQuery(async () => (navigator.storage?.estimate ? (await navigator.storage.estimate()).usage : undefined), []);
   const active = useActiveWorkout();
+
+  // "Edit set goals" links here with state { scrollTo: 'goals' }. Scroll once
+  // the sections above have loaded, or their late content would push it down.
+  const scrollTarget = (useLocation().state as { scrollTo?: string } | null)?.scrollTo;
+  // The goals list must be loaded too, or the page is too short to scroll that far.
+  const goalsLoaded = useGoals() !== undefined;
+  const aboveLoaded = counts !== undefined && lastExport !== undefined && persist !== undefined && goalsLoaded;
+  useEffect(() => {
+    if (!scrollTarget || !aboveLoaded) return;
+    // A timeout (not requestAnimationFrame, which never fires in a hidden tab) runs after this render paints.
+    const id = setTimeout(() => document.getElementById(scrollTarget)?.scrollIntoView({ block: 'start' }), 0);
+    return () => clearTimeout(id);
+  }, [scrollTarget, aboveLoaded]);
 
   const fileInput = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
@@ -172,6 +189,13 @@ export default function SettingsScreen() {
           />
           <p className="field-hint">Importing replaces everything on this phone with the backup's contents.</p>
         </div>
+      </section>
+
+      <section className="section" aria-labelledby="set-goals" id="goals">
+        <h2 id="set-goals" className="section-title">
+          Weekly set goals
+        </h2>
+        <GoalsEditor />
       </section>
 
       <section className="section" aria-labelledby="set-storage">

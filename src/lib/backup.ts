@@ -10,6 +10,7 @@ import {
   type Workout,
 } from '../db/types.ts';
 import { MAX_REPS, MAX_WEIGHT } from './numbers.ts';
+import { MAX_GOAL, MIN_GOAL, TARGET_GROUPS, parseGoals, type Goals } from './muscleTargets.ts';
 import { uniqueIds } from './workout.ts';
 
 /*
@@ -32,6 +33,9 @@ export const BACKUP_FORMAT = 1;
 
 export type BackupData = { exercises: Exercise[]; routines: Routine[]; workouts: Workout[] };
 
+/** User preferences carried in the backup. Optional: older files have none. */
+export type BackupSettings = { muscleGoals?: Goals };
+
 export type BackupFile = {
   app: typeof BACKUP_APP;
   format: number;
@@ -39,6 +43,7 @@ export type BackupFile = {
   exportedAt: string;
   seedVersion: number;
   data: BackupData;
+  settings?: BackupSettings;
 };
 
 export type BackupSummary = {
@@ -52,7 +57,13 @@ export type BackupSummary = {
   lastWorkout: number | null;
 };
 
-export function buildBackup(data: BackupData, schemaVersion: number, seedVersion: number, now: number): BackupFile {
+export function buildBackup(
+  data: BackupData,
+  schemaVersion: number,
+  seedVersion: number,
+  now: number,
+  settings?: BackupSettings,
+): BackupFile {
   return {
     app: BACKUP_APP,
     format: BACKUP_FORMAT,
@@ -60,6 +71,7 @@ export function buildBackup(data: BackupData, schemaVersion: number, seedVersion
     exportedAt: new Date(now).toISOString(),
     seedVersion,
     data,
+    ...(settings ? { settings } : {}),
   };
 }
 
@@ -224,6 +236,17 @@ function migrate(data: Obj, fromVersion: number): Obj {
   return data;
 }
 
+function settingsFrom(v: unknown): BackupSettings | undefined {
+  if (v === undefined) return undefined;
+  const o = obj(v, 'settings');
+  if (o.muscleGoals === undefined) return {};
+  const g = obj(o.muscleGoals, 'settings.muscleGoals');
+  for (const k of TARGET_GROUPS) {
+    if (g[k] !== undefined) num(g[k], `settings.muscleGoals.${k}`, { min: MIN_GOAL, max: MAX_GOAL, int: true });
+  }
+  return { muscleGoals: parseGoals(g) };
+}
+
 export type ValidationResult = { ok: true; file: BackupFile; summary: BackupSummary } | { ok: false; error: string };
 
 /** Parses and fully validates a backup file's text. */
@@ -253,6 +276,7 @@ export function validateBackup(text: string, currentSchemaVersion: number): Vali
     const workouts = uniqueBy(arr(data.workouts, 'workouts').map((w, i) => workout(w, `workouts[${i}]`, ids)), 'workouts');
     const exportedAt = typeof top.exportedAt === 'string' ? top.exportedAt : '';
     const seedVersion = typeof top.seedVersion === 'number' && Number.isInteger(top.seedVersion) ? top.seedVersion : 0;
+    const settings = settingsFrom(top.settings);
     const file: BackupFile = {
       app: BACKUP_APP,
       format: BACKUP_FORMAT,
@@ -260,6 +284,7 @@ export function validateBackup(text: string, currentSchemaVersion: number): Vali
       exportedAt,
       seedVersion,
       data: { exercises, routines, workouts },
+      ...(settings ? { settings } : {}),
     };
     return { ok: true, file, summary: summarize(file) };
   } catch (err) {

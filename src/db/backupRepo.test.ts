@@ -69,6 +69,21 @@ describe('replaceAllData', () => {
     expect(after.data).toEqual(before.data);
   });
 
+  it('carries weekly set goals across, and keeps local goals for backups without them', async () => {
+    await db.meta.put({ key: 'muscleGoals', value: { chest: 15, back: 12 } });
+    const withGoals = await createBackup(db, 0);
+    expect(withGoals.settings?.muscleGoals?.chest).toBe(15);
+
+    await db.meta.put({ key: 'muscleGoals', value: { chest: 9 } });
+    await replaceAllData(withGoals, db);
+    expect(((await db.meta.get('muscleGoals'))?.value as { chest: number }).chest).toBe(15);
+
+    const { settings: _drop, ...older } = withGoals;
+    await db.meta.put({ key: 'muscleGoals', value: { chest: 20 } });
+    await replaceAllData(older, db);
+    expect(((await db.meta.get('muscleGoals'))?.value as { chest: number }).chest).toBe(20);
+  });
+
   it('adds preloaded lifts missing from an older backup', async () => {
     const file = await createBackup(db, 0);
     file.data.exercises = file.data.exercises.filter((e) => e.id !== 'seed-plank');
